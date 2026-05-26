@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_app_bloc/logic/bloc/todo_bloc.dart';
 import 'package:todo_app_bloc/logic/bloc/todo_event.dart';
-
+import 'package:todo_app_bloc/presentation/screens/add_todo.dart';
 
 class TodoScreen extends StatelessWidget {
   const TodoScreen({super.key});
@@ -19,7 +19,7 @@ class TodoScreen extends StatelessWidget {
               // Cách trigger (gọi) một Event từ UI
               context.read<TodoBloc>().add(LoadTodosEvent());
             },
-          )
+          ),
         ],
       ),
       body: BlocBuilder<TodoBloc, TodoState>(
@@ -27,8 +27,8 @@ class TodoScreen extends StatelessWidget {
           // Xử lý vẽ UI dựa theo từng State cụ thể
           if (state is TodoLoadingState) {
             return const Center(child: CircularProgressIndicator());
-          } 
-          
+          }
+
           if (state is TodoLoadedState) {
             return ListView.builder(
               itemCount: state.todos.length,
@@ -36,24 +36,47 @@ class TodoScreen extends StatelessWidget {
                 final item = state.todos[index];
                 return ListTile(
                   leading: CircleAvatar(child: Text('${index + 1}')),
-                  title: Text(item['title'] ?? ''),
-                  trailing: Icon(
-                    item['completed'] == true ? Icons.check_circle : Icons.radio_button_unchecked,
-                    color: item['completed'] == true ? Colors.green : Colors.grey,
+                  title: Text(item.title),
+                  subtitle: Text(item.description ?? "Khong co ghi chu"),
+                  trailing: IconButton(
+                    onPressed: () {
+                      context.read<TodoBloc>().add(
+                        ToggleTodoEvent(
+                          id: item.id!,
+                          isCompleted: !item.isCompleted,
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      item.isCompleted == true
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                    ),
+                    isSelected: item.isCompleted == true ? true : false,
+                    color: item.isCompleted == true
+                        ? Colors.green
+                        : Colors.grey,
                   ),
                 );
               },
             );
-          } 
-          
+          }
+
           if (state is TodoErrorState) {
             return Center(
               child: Text('Đã có lỗi xảy ra: ${state.errorMessage}'),
             );
           }
-          
+
           return const Center(child: Text('Bấm nút để tải dữ liệu.'));
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Text('+', style: TextStyle(fontSize: 20)),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AddTodo()),
+        ),
       ),
     );
   }
