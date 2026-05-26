@@ -15,7 +15,7 @@ class TodoLoadingState extends TodoState {}
 
 // 3. Trạng thái đã tải xong và có dữ liệu
 class TodoLoadedState extends TodoState {
-  final List<dynamic> todos;
+  final List<TodoModel> todos;
   const TodoLoadedState(this.todos);
 
   @override
